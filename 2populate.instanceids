@@ -1,0 +1,1 @@
+aws --region eu-west-1 ec2 describe-instances --filters Name=instance-lifecycle,Values=spot Name="tag:aws:ec2spot:fleet-request-id",Values=sfr-47491e8d-4eb9-4c71-a987-c1a4da276353 --query 'Reservations[].[Instances[].[InstanceId,PublicIpAddress]]' --output text > instanceids

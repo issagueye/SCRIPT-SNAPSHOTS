@@ -1,0 +1,179 @@
+#!/usr/bin/tcsh
+
+if ( ! -f $1 ) exit 1
+if ( $# == 1 ) exit 1
+
+set didn = 1
+set seqn = 1
+
+switch ($2)
+   case "one":
+         set did  = ( b c d e f g h i j k l m n o p q r s t u v w x y )
+        breaksw
+   case "two":
+         set did  = ( ab ac ad ae af ag ah ai aj ak al am an ao ap aq ar as at au av aw ax ay )
+        breaksw
+   case "three":
+         set did  = ( bb bc bd be bf bg bh bi bj bk bl bm bn bo bp bq br bs bt bu bv bw bx by )
+        breaksw
+   case "four":
+         set did  = ( cb cc cd ce cf cg ch ci cj ck cl cm cn co cp cq cr cs ct cu cv cw cx cy )
+        breaksw
+   case "five":
+         set did  = ( db dc dd de df dg dh di dj dk dl dm dn do dp dq dr ds dt du dv dw dx dy )
+        breaksw
+   case "six":
+         set did  = ( eb ec ed ee ef eg eh ei ej ek el em en eo ep eq er es et eu ev ew ex ey)
+        breaksw
+   case "seven":
+         set did  = ( fb fc fd fe ff fg fh fi fj fk fl fm fn fo fp fq fr fs ft fu fv fw fx fy)
+        breaksw
+   case "eight":
+         set did  = ( gb gc gd ge gf gg gh gi gj gk gl gm gn go gp gq gr gs gt gu gv )
+        breaksw
+   case "nine":
+         set did  = ( hb hc hd he hf hg hh hi hj hk hl hm hn ho hp hq hr hs ht hu hv )
+        breaksw
+   case "ten":
+         set did  = ( ib ic id ie if ig ih ii ij ik il im in io ip iq ir is it iu iv )
+        breaksw
+   default:
+         set kik  = ( kb kc kd ke kf kg kh ki kj kk kl km kn ko kp kq kr ks kt ku kv )
+        breaksw
+endsw
+
+sed -n '1,23p' $1 > ProcessingSnapLines.$$
+./SnapshotName.S3Object ./ProcessingSnapLines.$$ > 4Objectsname.$$
+
+set instanceid        = `curl http://169.254.169.254/latest/meta-data/instance-id` 
+#set instanceaz       = `curl http://169.254.169.254/latest/meta-data/instance-id` 
+set instanceaz        = eu-west-1c
+set snapshots2process = `cut -d, -f2 ./ProcessingSnapLines.$$`
+set snapsize          = `echo $1 |cut -d'.' -f4  | tr '[:upper:]' '[:lower:]'`
+@   BytesSnapsize     =  $snapsize * 1024 * 1024 * 1024
+set s3reponame        = `echo $1 |cut -d'.' -f1-3| tr '[:upper:]' '[:lower:]'`
+set snapreponame      = `echo $1:r | tr '[:upper:]' '[:lower:]'`
+
+if ( $snapsize >= 500 ) then
+  set volumetype2use = sc1 
+else
+  set volumetype2use = standard
+endif
+
+cp $1 $snapreponame.$$
+
+while ( -s $snapreponame.$$ )
+
+  foreach snapid ($snapshots2process)
+    set st = 3
+    set vid = `aws --region eu-west-1 ec2 create-volume --snapshot-id $snapid --availability-zone $instanceaz --volume-type $volumetype2use --query 'VolumeId'|sed 's/"//g'`
+    while ( "-$vid-" == "--" )
+       sleep $st
+       set vid = `aws --region eu-west-1 ec2 create-volume --snapshot-id $snapid --availability-zone $instanceaz --volume-type $volumetype2use --query 'VolumeId'|sed 's/"//g'`
+       @ st = $st + 2
+    end
+    if ( "-$vid-" != "--" ) then
+       set st = 3
+       sleep 7
+       aws --region eu-west-1 ec2 attach-volume --volume-id $vid --instance-id $instanceid --device /dev/xvd$did[$didn] --output text > /dev/null
+       set excode=$?
+       while ( $excode )
+         sleep $st
+         aws --region eu-west-1 ec2 attach-volume --volume-id $vid --instance-id $instanceid --device /dev/xvd$did[$didn] --output text > /dev/null
+         set excode=$?
+         @ st = $st + 2
+       end 
+       aws --region eu-west-1 ec2 create-tags --resources $vid --tags Key=Name,Value=4SnapsMigration Key=APPLICATION,Value=TRF2S3GLACIER Key=BUSINESS_UNIT,Value=PROD Key=COSTCENTER,Value=MCIT01 Key=SUBSIDIARY,Value=AFR
+   
+       echo "$didn,${didn}p" > 4sed.$$
+       set Objectname = `sed -n -f ./4sed.$$ ./4Objectsname.$$`
+       echo xvd$did[$didn],$Objectname >> snapshotsObjectname.$$.$seqn
+       echo $vid >> VolumesID.$$.$seqn
+    endif
+    @ didn++
+  end
+  set didn = 1
+
+  sleep 5
+  switch ($2)
+     case "two":
+         sed -n 's/.* \(xvda[bcdefghijklmnopqrstuvwxy]\).*/\1/p' /proc/partitions | uniq > actualdev.$$
+        breaksw
+     case "three":
+         sed -n 's/.* \(xvdb[bcdefghijklmnopqrstuvwxy]\).*/\1/p' /proc/partitions | uniq > actualdev.$$
+        breaksw
+     case "four":
+         sed -n 's/.* \(xvdc[bcdefghijklmnopqrstuvwxy]\).*/\1/p' /proc/partitions | uniq > actualdev.$$
+        breaksw
+     case "five":
+         sed -n 's/.* \(xvdd[bcdefghijklmnopqrstuvwxy]\).*/\1/p' /proc/partitions | uniq > actualdev.$$
+        breaksw
+     case "six":
+         sed -n 's/.* \(xvde[bcdefghijklmnopqrstuvwxy]\).*/\1/p' /proc/partitions | uniq > actualdev.$$
+        breaksw
+     case "seven":
+         sed -n 's/.* \(xvdf[bcdefghijklmnopqrstuvwxy]\).*/\1/p' /proc/partitions | uniq > actualdev.$$
+        breaksw
+     case "eight":
+         sed -n 's/.* \(xvdg[bcdefghijklmnopqrstuvwxy]\).*/\1/p' /proc/partitions | uniq > actualdev.$$
+        breaksw
+     case "nine":
+         sed -n 's/.* \(xvdh[bcdefghijklmnopqrstuvwxy]\).*/\1/p' /proc/partitions | uniq > actualdev.$$
+        breaksw
+     case "ten":
+         sed -n 's/.* \(xvdi[bcdefghijklmnopqrstuvwxy]\).*/\1/p' /proc/partitions | uniq > actualdev.$$
+        breaksw
+     case "one":
+         sed -n 's/.* \(xvd[bcdefghijklmnopqrstuvwxy]\)$/\1/p' /proc/partitions | uniq > actualdev.$$
+        breaksw
+  endsw
+
+
+  foreach dev2dd ( `cut -d, -f1 ./snapshotsObjectname.$$.$seqn` )
+    grep $dev2dd actualdev.$$ > /dev/null
+    set excode=$?
+    if ( $excode ) then
+    else
+      set s3name = `grep $dev2dd ./snapshotsObjectname.$$.$seqn|cut -d, -f2` 
+      #/sbin/fdisk -l /dev/$dev2dd | grep $dev2dd | /usr/local/bin/aws --region eu-west-1 s3 cp - s3://snapshotsmigrated2s34mc/$s3reponame/$s3name.dev --storage-class STANDARD --quiet
+      /bin/dd if=/dev/$dev2dd bs=850M | /usr/local/bin/aws --region eu-west-1 s3 cp - s3://snapshotsmigrated2s34mc/$s3reponame/$s3name --expected-size $BytesSnapsize --storage-class STANDARD --quiet &
+    endif
+  end
+
+  wait
+  echo $snapshots2process > $1.`date +%s`.2del
+  logger -p user.info -t SnapMigration "SnapIDs Migrated: $snapshots2process - FROM $1"
+
+  foreach volid (`cat VolumesID.$$.$seqn`)
+    set st = 3
+    aws --region eu-west-1 ec2 detach-volume --volume-id $volid --instance-id $instanceid
+    set excode=$?
+    while ( $excode )
+      sleep $st
+      aws --region eu-west-1 ec2 detach-volume --volume-id $volid --instance-id $instanceid
+      set excode=$?
+      @ st = $st + 2
+    end
+
+    set st = 3
+    sleep 5
+
+    aws --region eu-west-1 ec2 delete-volume --volume-id $volid
+    set excode=$?
+    while ( $excode )
+      sleep $st
+      aws --region eu-west-1 ec2 delete-volume --volume-id $volid
+      set excode=$?
+      @ st = $st + 2
+    end
+  end
+
+  sed '1,23d' $snapreponame.$$ > $snapreponame.$$.
+  mv $snapreponame.$$. $snapreponame.$$
+  sed -n '1,23p' $snapreponame.$$ > ProcessingSnapLines.$$
+  set snapshots2process = `cut -d, -f2 ProcessingSnapLines.$$`
+  ./SnapshotName.S3Object ./ProcessingSnapLines.$$ > 4Objectsname.$$
+  @ seqn++
+end
+
+rm *.$$*

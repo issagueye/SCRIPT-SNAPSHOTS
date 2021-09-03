@@ -1,0 +1,14 @@
+2021-04-06T22:25:40.188Z,snap-099548cde13dda272,COB backup of volume vol-0858c91ef2a1e71f0; Currently attached to PROD MCBF T24 [PROD-CORBKG-BF] as xvdf;,240
+2021-04-06T21:59:45.216Z,snap-04814a56f5b8f897d,COB backup of volume vol-087c9bb4f022f8b66; Currently attached to PROD MCTN T24 [PROD-CORBKG-TN] as xvdf;,400
+2021-04-08T22:29:06.763Z,snap-0557bb89b103f50f8,COB backup of volume vol-0858c91ef2a1e71f0; Currently attached to PROD MCBF T24 [PROD-CORBKG-BF] as xvdf;,240
+2021-04-07T23:01:13.243Z,snap-0469e47f45e0e763a,COB backup of volume vol-0858c91ef2a1e71f0; Currently attached to PROD MCBF T24 [PROD-CORBKG-BF] as xvdf;,240
+2021-04-06T22:29:15.817Z,snap-01e81b7f243d50ef1,COB backup of volume vol-089d83db0157ac5f2; Currently attached to PROD MCM T24 [PROD-CORBKG-MG] as xvdf;,1000
+2021-04-08T22:22:13.635Z,snap-0b0e157edd76b2575,COB backup of volume vol-087c9bb4f022f8b66; Currently attached to PROD MCTN T24 [PROD-CORBKG-TN] as xvdf;,400
+2021-04-08T23:42:58.981Z,snap-03fabaece16b7e150,COB backup of volume vol-03336cd63cf51f939; Currently attached to PROD MCML T24 [PROD-CORBKG-ML] as xvdf;,700
+2021-04-08T01:34:15.459Z,snap-03dcf43c8c0826743,COB backup of volume vol-0cb3e2fcdf87a895e; Currently attached to PROD MCCI T24 [PROD-CORBKG-CI] as xvdh;,2150
+2021-04-07T03:32:17.792Z,snap-0637f2f74af94f01f,COB backup of volume vol-0cb3e2fcdf87a895e; Currently attached to PROD MCCI T24 [PROD-CORBKG-CI] as xvdh;,2150
+2021-04-08T02:09:59.283Z,snap-086fcda76c8e401bc,COB backup of volume vol-0cc535be34f8b6f2a; Currently attached to PROD MCS T24 R12 [PROD-CORBKG-SN] as xvdh;,2100
+2021-04-07T22:54:18.460Z,snap-0e88e353e6b748da8,COB backup of volume vol-089d83db0157ac5f2; Currently attached to PROD MCM T24 [PROD-CORBKG-MG] as xvdf;,1000
+2021-04-08T22:25:49.318Z,snap-0460abcb9bb40ed85,COB backup of volume vol-089d83db0157ac5f2; Currently attached to PROD MCM T24 [PROD-CORBKG-MG] as xvdf;,1000
+2021-04-08T23:11:57.162Z,snap-05c98ba570cd1f594,COB backup of volume vol-0ffacf50c5c0391a2; Currently attached to PROD MCNI T24 [PROD-CORBKG-NI] as xvdf;,1200
+2021-04-08T00:24:10.373Z,snap-00ea76e0512223aa2,COB backup of volume vol-0ffacf50c5c0391a2; Currently attached to PROD MCNI T24 [PROD-CORBKG-NI] as xvdf;,1200

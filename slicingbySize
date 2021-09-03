@@ -1,0 +1,4 @@
+#!/bin/bash
+cut -d, -f4 T24.PROD.BeforeCOB | while read size; do  grep ",$size$" T24.PROD.BeforeCOB > T24.PROD.BeforeCOB.$size; done
+cut -d, -f4 T24.PROD.AfterCOB | while read size; do  grep ",$size$" T24.PROD.AfterCOB > T24.PROD.AfterCOB.$size; done
+wc -l T24.PROD.*COB.[0-9]* | sort -n

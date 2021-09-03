@@ -1,0 +1,21 @@
+#! /bin/bash
+
+sourcefile=./snapid.INS3.errors
+s3file=$1
+
+cat /dev/null > wrong-snapid.INS3.errors
+
+cat $sourcefile | while read line
+do
+  snapid=$(echo $line | cut -d: -f1)
+  delfile=$(echo $line | cut -d: -f2)
+  wrongsize=$(echo $line | cut -d: -f3)
+
+  if [ "$wrongsize" = "WrongSize" ]; then
+     echo "Snapshot ID $snapid will be deleted from S3"
+     echo $(grep $snapid $s3file|cut -d' ' -f4) >> wrong-snapid.INS3.errors
+  fi
+
+  sed "s/$snapid//" $delfile > $delfile.seded
+  mv $delfile.seded $delfile
+done

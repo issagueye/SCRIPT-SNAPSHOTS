@@ -1,0 +1,43 @@
+#!/usr/bin/tcsh
+
+set didn = 1
+set seqn = 1
+set did  = ( b c d e f g h i j k l m n o p q r s t u v w x y )
+
+set instanceid        = `curl http://169.254.169.254/latest/meta-data/instance-id` 
+set instanceaz        = eu-west-1b
+
+foreach snapid (`cat $1`)
+
+  set snapsize = `aws --region eu-west-1 ec2 describe-snapshots --owner-ids 193583157031 --filters Name=snapshot-id,Values=snap-02442604a073caa02 --output text --query 'Snapshots[].VolumeSize'`
+
+  if ( $snapsize >= 500 ) then
+     set volumetype2use = sc1 
+  else
+     set volumetype2use = standard
+  endif
+
+    set st = 3
+    set vid = `aws --region eu-west-1 ec2 create-volume --snapshot-id $snapid --availability-zone $instanceaz --volume-type $volumetype2use --query 'VolumeId'|sed 's/"//g'`
+    while ( "-$vid-" == "--" )
+       sleep $st
+       set vid = `aws --region eu-west-1 ec2 create-volume --snapshot-id $snapid --availability-zone $instanceaz --volume-type $volumetype2use --query 'VolumeId'|sed 's/"//g'`
+       @ st = $st + 2
+    end
+    if ( "-$vid-" != "--" ) then
+       set st = 3
+       sleep 7
+       aws --region eu-west-1 ec2 attach-volume --volume-id $vid --instance-id $instanceid --device /dev/xvd$did[$didn] --output text > /dev/null
+       set excode=$?
+       while ( $excode )
+         sleep $st
+         aws --region eu-west-1 ec2 attach-volume --volume-id $vid --instance-id $instanceid --device /dev/xvd$did[$didn] --output text > /dev/null
+         set excode=$?
+         @ st = $st + 2
+       end 
+       aws --region eu-west-1 ec2 create-tags --resources $vid --tags Key=Name,Value=4SnapsZipping Key=BUSINESS_UNIT,Value=PROD
+   
+       echo $vid >> VolumesID.$$.$seqn
+  endif
+  @ didn++
+end

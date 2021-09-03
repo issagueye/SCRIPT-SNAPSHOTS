@@ -1,0 +1,22 @@
+#!/bin/bash
+
+[ -d SnapshotsFiltered/$1 ] || mkdir SnapshotsFiltered/$1
+[ $# -eq 2 ] && mkdir SnapshotsFiltered/$1/$2
+tagname1=`echo $1|cut -d. -f2`
+tagname2=`echo $2|cut -d. -f2`
+
+cat "$1" | while read tagtype1
+do
+ if [ $# -eq 2 ]; then
+  cat "$2" | while read tagtype2
+  do
+   aws --region eu-west-1 ec2 describe-snapshots --owner-ids 193583157031 --filters "Name=tag:$tagname1,Values=$tagtype1" "Name=tag:$tagname2,Values=$tagtype2" --output text --query 'Snapshots[].{ID:SnapshotId,Name:Description,DateCreated:StartTime,VSize:VolumeSize}'| tr '\t' ',' > SnapshotsFiltered/"$1/$2/$tagtype1.$tagtype2.csv"
+  echo $tagtype1.$tagtype2.csv Snapshots File created in SnapshotsFiltered/$1/$2...
+  sort SnapshotsFiltered/"$1/$2/$tagtype1.$tagtype2.csv" > SnapshotsFiltered/"$1/$2/$tagtype1.$tagtype2.sorted"
+  done
+ else
+  aws --region eu-west-1 ec2 describe-snapshots --owner-ids 193583157031 --filters "Name=tag:$tagname1,Values=$tagtype1" --output text --query 'Snapshots[].{ID:SnapshotId,Name:Description,DateCreated:StartTime,VSize:VolumeSize}'| tr '\t' ',' > SnapshotsFiltered/"$1/$tagtype1.csv"
+  echo $tagtype1.csv Snapshots File created in SnapshotsFiltered/$1...
+  sort SnapshotsFiltered/"$1/$tagtype1.csv" > SnapshotsFiltered/"$1/$tagtype1.sorted"
+ fi
+done

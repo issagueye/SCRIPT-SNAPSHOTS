@@ -1,0 +1,19 @@
+#! /bin/bash
+
+cat /dev/null > snapid.INS3.errors
+sed 's/  / /g' ./result > ./result.s
+mv ./result.s ./result
+sed 's/  / /g' ./result > ./result.s
+mv ./result.s ./result
+
+cut -d. -f2 result | while read snap
+do
+      size2check=$(grep $snap ./T24.PROD.AfterCOB.Ref | cut -d, -f4)
+      echo Checking if Snapshot $snap has Upload $size2check GiB ...
+      size2checkinBytes=$(echo "$size2check*1024*1024*1024" | bc)
+      sizeuploaded=$(grep $snap ./result | cut -d' ' -f3)
+      if [ $size2checkinBytes != $sizeuploaded ]; then
+         echo $snapid in $2 has a wrong upload size $sizeuploaded instead of $size2checkinBytes [$size2check]
+         echo "$snapid:$fln:WrongSize:$sizeuploaded" >> snapid.INS3.errors
+      fi
+done

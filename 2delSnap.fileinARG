@@ -1,0 +1,14 @@
+#! /bin/bash
+
+cat /dev/null > snapid.2del.errors
+
+cut -d, -f2 $1 | while read snapid
+do
+  aws --region eu-west-1 ec2 delete-snapshot --snapshot-id $snapid 2> /dev/null
+  if [ $? -gt 0 ]; then
+     echo "Snapshot $snapid NOT DElETED ..."
+     echo $snapid >> snapid.2del.errors
+  else
+     echo Snapshot $snapid DElETED ...
+  fi
+done

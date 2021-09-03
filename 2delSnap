@@ -1,0 +1,14 @@
+#! /bin/bash
+
+cat /dev/null > snapid.2del.errors
+
+sed 's/  */ /g' 2delfiles/T24.PROD.AfteCOB.*.2del|sed -e 's/^ //' -e 's/ $//'|tr ' ' '\n' | while read snapid
+do
+  aws ec2 delete-snapshot --snapshot-id $snapid 2> /dev/null
+  if [ $? -gt 0 ]; then
+     echo "Snapshot $snapid NOT DElETED ..."
+     echo $snapid >> snapid.2del.errors
+  else
+     echo Snapshot $snapid DElETED ...
+  fi
+done

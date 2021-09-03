@@ -1,0 +1,19 @@
+#! /bin/bash
+
+cat /dev/null > $1.INS3.errors
+
+cat $1 | tr ' ' '\n' | while read snapid
+do
+    grep $snapid $2 > /dev/null
+    if [ $? -gt 0 ]; then
+      aws ec2 describe-snapshots --owner-ids 193583157031 --snapshot-ids $snapid > /dev/null 2>&1
+      if [ $? -gt 0 ]; then
+        echo "Snapshot $snapid was DELETED B4 MIGRATION " 
+      else
+        echo ","$snapid"," >> $1.INS3.errors
+        echo "Snapshot $snapid NOT MIGRATED !!! File: $1" 
+      fi
+    else
+      echo Snapshot $snapid MIGRATED ...
+    fi
+done

@@ -1,0 +1,1 @@
+cat Snapshots.woami.wob4cob.woaftcob.woecg.wo6-60.csv |sed 's/,/ /g'| while read snapid datetime size desc; do   echo $datetime,$snapid,,$size >> Snapshots.woami.wob4cob.woaftcob.woecg.wo6-60.4mig2s3; done

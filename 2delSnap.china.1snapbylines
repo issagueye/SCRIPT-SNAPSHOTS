@@ -1,0 +1,14 @@
+#! /bin/bash
+
+cat /dev/null > snapid.2del.errors.china
+
+cat $1 | while read snapid
+do
+  aws --profile china ec2 delete-snapshot --snapshot-id $snapid 2> /dev/null
+  if [ $? -gt 0 ]; then
+     echo "Snapshot $snapid in CHINA NOT DElETED ..."
+     echo $snapid >> snapid.2del.errors.china
+  else
+     echo Snapshot $snapid in CHINA DElETED ...
+  fi
+done

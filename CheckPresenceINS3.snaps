@@ -1,0 +1,37 @@
+#! /bin/bash
+# $1 file *.2del
+# $2 file *.s3
+
+cat /dev/null > snapid.INS3.errors
+sed 's/  / /g' $2 > $2.s
+mv $2.s $2
+sed 's/  / /g' $2 > $2.s
+mv $2.s $2
+
+ls -1 $1.*.2del | while read fln
+do
+  sed -e 's/  */ /g' -e 's/^ //' -e 's/ $//' $fln > $fln.$$
+  mv $fln.$$ $fln
+  for snapid in `cat $fln`;  do
+    grep $snapid $2 > /dev/null
+    if [ $? -gt 0 ]; then
+      aws --region eu-west-1 ec2 describe-snapshots --owner-ids 193583157031 --snapshot-ids $snapid > /dev/null 2>&1
+      if [ $? -gt 0 ]; then
+        echo "Snapshot $snapid was DELETED B4 MIGRATION " 
+        echo "$snapid:$fln:DeletedB4" >> snapid.INS3.errors
+      else
+        echo "$snapid:$fln" >> snapid.INS3.errors
+        echo "Snapshot $snapid NOT MIGRATED !!! File: $fln" 
+      fi
+    else
+      size2check=$(echo $fln | cut -d. -f4)
+      echo Checking if Snapshot $snapid has Upload $size2check GiB ...
+      size2checkinBytes=$(echo "$size2check*1024*1024*1024" | bc)
+      sizeuploaded=$(grep $snapid $2 | cut -d' ' -f3)
+      if [ $size2checkinBytes != $sizeuploaded ]; then
+         echo $snapid in $2 has a wrong upload size $sizeuploaded instead of $size2checkinBytes [$size2check]
+         echo "$snapid:$fln:WrongSize:$sizeuploaded" >> snapid.INS3.errors
+      fi
+    fi
+  done
+done
